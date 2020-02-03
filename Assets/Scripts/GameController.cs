@@ -13,9 +13,21 @@ public class GameController : MonoBehaviour, IPointerDownHandler, IDragHandler
 {
     private GameCore core;
     public NumberSprite[,] spriteActionArray;
+    private int scoreNum = 0;
+    private int bestNum = 0;
+    private Button btn_newGame;
+    private Text score;
+    private Text best;
+
     private void Start()
     {
         core = new GameCore();
+        btn_newGame = GameObject.Find("btn_NewGame").GetComponent<Button>();
+        score = GameObject.Find("Score").GetComponent<Text>();
+        best = GameObject.Find("Best").GetComponent<Text>();
+        score.text = "0";
+        best.text = bestNum.ToString();
+        btn_newGame.onClick.AddListener(btn_NewGame);
         spriteActionArray = new NumberSprite[4, 4];
         Init();
         GenerateNewNumber();
@@ -79,6 +91,13 @@ public class GameController : MonoBehaviour, IPointerDownHandler, IDragHandler
 
     private void UpdateMap()
     {
+        scoreNum += core.SingleScore;
+        score.text = scoreNum.ToString();
+        if (scoreNum > bestNum)
+        {
+            bestNum = scoreNum;
+        }
+
         for (int r = 0; r < 4; r++)
         {
             for (int c = 0; c < 4; c++)
@@ -98,6 +117,22 @@ public class GameController : MonoBehaviour, IPointerDownHandler, IDragHandler
                 }
             }
         }
+    }
+
+    private void btn_NewGame()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                core.Map[i, j] = 0;
+            }
+        }
+        UpdateMap();
+        GenerateNewNumber();
+        score.text = "0";
+        best.text = bestNum.ToString();
+
     }
 
     private Vector2 startPoint;

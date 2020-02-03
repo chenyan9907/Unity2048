@@ -15,11 +15,19 @@ namespace Console2048
         private int[] removeZeroArray;
         private int[,] originalMap;
         private bool[,] isMerged;
+        private int singleScore = 0;
+        private string[,] moveMatrix;
 
         public bool[,] IsMerged
         {
             get 
             { return isMerged; }
+        }
+
+        public string[,] MoveMatrix
+        {
+            get 
+            { return moveMatrix; }
         }
 
 
@@ -29,6 +37,11 @@ namespace Console2048
             { return map; }
         }
 
+        public int SingleScore
+        {
+            get
+            { return singleScore; }
+        }
 
         public GameCore()
         {
@@ -46,9 +59,11 @@ namespace Console2048
             originalMap = new int[4, 4];
             //合并单元格数组
             isMerged = new bool[4, 4];
+            //移动矩阵，记录移动位置
+            moveMatrix = new string[4, 4];
         }
 
-        private void RemoveZero()
+        private void RemoveZero(int r, int c, MoveDirection dir)
         {
 
             Array.Clear(removeZeroArray, 0, 4);
@@ -56,8 +71,49 @@ namespace Console2048
             int index = 0;
             for (int i = 0; i < mergeArray.Length; i++)
             {
+                //if (mergeArray[i] == 0)
+                //{
+                //    if (dir == MoveDirection.Up)
+                //    {
+                //        moveMatrix[i, c] = null;
+                //    }
+                //    else if (dir == MoveDirection.Down)
+                //    {
+                //        moveMatrix[3 - i, c] = null;
+                //    }
+                //    else if (dir == MoveDirection.Left)
+                //    {
+                //        moveMatrix[r, i] = null;
+                //    }
+                //    else if (dir == MoveDirection.Right)
+                //    {
+                //        moveMatrix[r, 3 - i] = null;
+                //    }
+                //}
                 if (mergeArray[i] != 0)
-                    removeZeroArray[index++] = mergeArray[i];//1
+                {
+                    removeZeroArray[index++] = mergeArray[i];
+                    //if (dir == MoveDirection.Up)
+                    //{
+                    //    moveMatrix[i, c] = index.ToString() + "," + c.ToString();
+                    //    index++;
+                    //}
+                    //else if (dir == MoveDirection.Down)
+                    //{
+                    //    moveMatrix[3 - i, c] = index.ToString() + "," + c.ToString();
+                    //    index++;
+                    //}
+                    //else if (dir == MoveDirection.Left)
+                    //{
+                    //    moveMatrix[r, i] = r.ToString() + "," + index.ToString();
+                    //    index++;
+                    //}
+                    //else if (dir == MoveDirection.Right)
+                    //{
+                    //    moveMatrix[r, 3 - i] = r.ToString() + "," + index.ToString();
+                    //    index++;
+                    //}
+                }
             }
 
             removeZeroArray.CopyTo(mergeArray, 0);
@@ -65,17 +121,27 @@ namespace Console2048
 
         private void Merge(ref bool[,] isMerged, int r, int c, MoveDirection dir)
         {
-            RemoveZero();//调用去零
+            RemoveZero(r, c, dir);//调用去零
             for (int i = 0; i < mergeArray.Length - 1; i++)
             {
                 if (mergeArray[i] != 0 && mergeArray[i] == mergeArray[i + 1])
                 {
                     mergeArray[i] += mergeArray[i + 1];
+                    singleScore += mergeArray[i];
                     mergeArray[i + 1] = 0;
                     //记录合并位置
                     if(dir==MoveDirection.Up)
                     {
                         isMerged[i, c] = true;
+                        //for (int j = 0; j < 4; j++)
+                        //{
+                        //    if (moveMatrix[j, c] != null)
+                        //    {
+                        //        moveMatrix[j, c] = i.ToString() + "," + c.ToString();
+                        //        moveMatrix[j + 1, c] = i.ToString() + "," + c.ToString();
+                        //        break;
+                        //    }
+                        //}
                     }
                     else if(dir == MoveDirection.Down)
                     {
@@ -91,7 +157,7 @@ namespace Console2048
                     }
                 }
             }
-            RemoveZero();//调用去零
+            RemoveZero(r, c, dir);//调用去零
         }
 
         private void MoveUp()
@@ -170,8 +236,11 @@ namespace Console2048
                 for (int j = 0; j < 4; j++)
                 {
                     isMerged[i, j] = false;
+                    moveMatrix[i, j] = null;
                 }
             }
+
+            singleScore = 0;
 
             switch (direction)
             {
